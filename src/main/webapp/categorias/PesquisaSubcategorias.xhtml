@@ -1,0 +1,86 @@
+<ui:composition template="/WEB-INF/template/LayoutPadrao.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa de Categorias</ui:define>
+
+	<ui:define name="corpo">
+		<h:form id="frmPesquisa">
+			<h1>Pesquisa de Subcategorias</h1>
+
+			<p:messages autoUpdate="true" closable="true" />
+			<p:toolbar style="margin-top: 20px">
+				<p:toolbarGroup>
+					<p:commandButton value="Pesquisar"
+						action="#{pesquisaSubCategoriasBean.pesquisar}" update="@form" />
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Novo" outcome="/categorias/CadastroSubcategoria" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+
+			<p:panelGrid columns="2" id="painel"
+				style="width: 100%; margin-top: 20px" columnClasses="rotulo, campo">
+				<p:outputLabel value="Nome" for="sku" />
+				<p:inputText id="sku" size="20"
+					value="#{pesquisaSubCategoriasBean.filtro.nome}" />
+
+				<p:outputLabel value="Categoria" for="cat" />
+				<p:inputText id="cat" size="20"
+					value="#{pesquisaSubCategoriasBean.filtro.categoria}" />
+			</p:panelGrid>
+
+
+			<p:dataTable id="subcategoriasTable"
+				value="#{pesquisaSubCategoriasBean.subcategoriasFiltrados}"
+				var="subcategoria" style="margin-top: 20px"
+				emptyMessage="Nenhuma subcategoria encontrada." rows="20"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom">
+
+				<p:column headerText="Nome Subcategoria"
+					style="text-align: center; width: 140px">
+					<h:outputText value="#{subcategoria.descricao}" />
+				</p:column>
+				<p:column headerText="Categoria"
+					style="text-align: center; width: 140px">
+					<h:outputText value="#{subcategoria.categoria.descricao}" />
+				</p:column>
+
+				<p:column style="width: 100px; text-align: center">
+					<p:button outcome="/categorias/CadastroSubcategoria"
+						icon="ui-icon-pencil" title="Editar">
+						<!-- Pega o Produto para Editar e Coloca no Formulario -->
+						<f:param name="subcategoria" value="#{subcategoria.id}" />
+					</p:button>
+
+
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						oncomplete="confirmacaoExclusao.show()" process="@this"
+						update=":frmPesquisa:confirmacaoExclusaoDialog">
+						<!-- Atribui o produto a ser excluido em uma variavel no Bean -->
+
+						<f:setPropertyActionListener value="#{subcategoria}"
+							target="#{pesquisaSubCategoriasBean.subcategoriaSelecionada}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog header="Exclusão de Subcategoria"
+				message="Tem certeza que deseja excluir a subategoria?"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="confirmacaoExclusao.hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="confirmacaoExclusao.hide();"
+					action="#{pesquisaSubCategoriasBean.excluir}" process="@this"
+					update=":frmPesquisa:subcategoriasTable" />
+			</p:confirmDialog>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

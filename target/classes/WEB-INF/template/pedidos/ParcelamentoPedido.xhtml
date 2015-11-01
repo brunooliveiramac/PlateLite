@@ -1,0 +1,96 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+
+	<p:panelGrid id="pnlParc" columns="6" columnClasses="rotulo, campo">
+		<p:outputLabel value="Parcelas" for="parc" />
+		<p:inputText id="parc" size="8" maxlength="80"
+			value="#{cadastroPedidoBean.pedido.repetir}"
+			disabled="#{cadastroPedidoBean.pedido.naoAlteravel}">
+		</p:inputText>
+
+		<p:commandButton style="margin-top:2px"
+			action="#{cadastroPedidoBean.calculaParcelas()}" value="Calcular"
+			update="tabelaParc" process="@form"
+			disabled="#{cadastroPedidoBean.pedido.naoAlteravel}" />
+
+		<p:commandButton value="Quitar Parcelas"
+			oncomplete="confirmacaoQuitar.show();" process="@this"
+			update="tabelaParc" style="margin-top:2px"
+			disabled="#{cadastroPedidoBean.pedido.quitadobotao}"
+			  />
+			
+		<p:outputLabel value="Pagamento quitado em:" rendered="#{cadastroPedidoBean.pedido.quitado}"/>
+		<h:outputText value="#{cadastroPedidoBean.pedido.dataQuita}">
+			<f:convertDateTime pattern="dd/MM/yyyy" />
+		</h:outputText>
+	</p:panelGrid>
+
+	<p:dataTable id="tabelaParc" rowIndexVar="linhaParc" editable="true"
+		style="width: 100%; margin-top: 20px" editMode="cell"
+		value="#{cadastroPedidoBean.pedido.parcelamentos}" var="itemParcela">
+
+		<p:ajax event="cellEdit" listener="#{cadastroPedidoBean.onCellEdit}"
+			update="@this" />
+
+		<f:facet name="header">
+           Parcelas
+       </f:facet>
+		<p:column headerText="Numero Parcela"
+			style="text-align: center; width: 50px">
+			<h:outputText size="8" value="#{itemParcela.num_parc}">
+			</h:outputText>
+		</p:column>
+
+		<p:column headerText="Data Pagamento"
+			style="text-align: center; width: 100px">
+			<h:outputText value="#{itemParcela.date}">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</h:outputText>
+		</p:column>
+
+		<p:column headerText="Status" style="text-align: center; width: 100px">
+			<h:outputText value="#{itemParcela.pagamento.descricao}">
+			</h:outputText>
+		</p:column>
+
+		<p:column headerText="Valor Parcela"
+			style="text-align: center; width: 20px">
+			<h:outputText value="#{itemParcela.valores}"
+				style="margin-right:15px">
+			</h:outputText>
+		</p:column>
+
+		<p:column headerText="Status Alterar"
+			style="text-align: center; width: 20px">
+			<p:cellEditor>
+				<f:facet name="output">
+					<h:outputText value="#{itemParcela.pagamento.descricao}" />
+				</f:facet>
+				<f:facet name="input">
+					<h:selectOneMenu value="#{itemParcela.pagamento}"
+						style="width:100%">
+						<f:selectItems value="#{cadastroPedidoBean.estadoPagamento}"
+							var="man" itemLabel="#{man.descricao}" itemValue="#{man}" />
+					</h:selectOneMenu>
+				</f:facet>
+			</p:cellEditor>
+		</p:column>
+	</p:dataTable>
+
+
+
+	<p:confirmDialog header="Quitar Parcelas"
+		message="Deseja realmente quitar todas as parcelas?"
+		widgetVar="confirmacaoQuitar" id="confirmacaoQuitarDialog">
+		<p:button value="Não"
+			onclick="confirmacaoQuitar.hide(); return false;" />
+		<p:commandButton value="Sim" oncomplete="confirmacaoQuitar.hide();"
+			action="#{cadastroPedidoBean.quitarPedido()}" process="@this"
+			update="pnlParc tabelaParc" />
+	</p:confirmDialog>
+
+</ui:composition>

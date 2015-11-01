@@ -1,0 +1,77 @@
+<ui:composition template="/WEB-INF/template/LayoutPadrao.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa de Categorias</ui:define>
+
+	<ui:define name="corpo">
+		<h:form id="frmPesquisa">
+			<h1>Pesquisa de Categorias</h1>
+
+			<p:messages autoUpdate="true" closable="true" />
+			<p:toolbar style="margin-top: 20px">
+				<p:toolbarGroup>
+					<p:commandButton value="Pesquisar"
+						action="#{pesquisaCategoriasBean.pesquisar}" update="@form" />
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Novo" outcome="/categorias/CadastroCategoria" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+
+			<p:panelGrid columns="2" id="painel"
+				style="width: 100%; margin-top: 20px" columnClasses="rotulo, campo">
+				<p:outputLabel value="Nome" for="sku" />
+				<p:inputText id="sku" size="20"
+					value="#{pesquisaCategoriasBean.filtro.nome}" />
+			</p:panelGrid>
+
+			<p:dataTable id="categoriasTable"
+				value="#{pesquisaCategoriasBean.categoriasFiltrados}" var="categoria"
+				style="margin-top: 20px"
+				emptyMessage="Nenhuma categoria encontrada." rows="20"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom">
+
+				<p:column headerText="Nome">
+					<h:outputText value="#{categoria.descricao}" />
+				</p:column>
+				<p:column style="width: 100px; text-align: center">
+					<p:button outcome="/categorias/CadastroCategoria"
+						icon="ui-icon-pencil" title="Editar">
+						<!-- Pega o Produto para Editar e Coloca no Formulario -->
+						<f:param name="categoria" value="#{categoria.id}" />
+					</p:button>
+
+
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						oncomplete="confirmacaoExclusao.show()" process="@this"
+						update=":frmPesquisa:confirmacaoExclusaoDialog">
+						<!-- Atribui o produto a ser excluido em uma variavel no Bean -->
+
+						<f:setPropertyActionListener value="#{categoria}"
+							target="#{pesquisaCategoriasBean.categoriaSelecionada}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+
+
+			<p:confirmDialog header="Exclusão de Categoria"
+				message="Tem certeza que deseja excluir a Categoria?"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="confirmacaoExclusao.hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="confirmacaoExclusao.hide();"
+					action="#{pesquisaCategoriasBean.excluir}" process="@this"
+					update=":frmPesquisa:categoriasTable" />
+			</p:confirmDialog>
+
+
+		</h:form>
+	</ui:define>
+</ui:composition>
